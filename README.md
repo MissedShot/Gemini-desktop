@@ -1,4 +1,4 @@
-# Gemini desktop PoC
+# Gemini desktop for MacOS PoC
 
 ## Screeenshot
 <img width="2964" height="2004" alt="image" src="https://github.com/user-attachments/assets/53caee86-2fb0-498b-9113-7b5d4b036a44" />
