@@ -17,6 +17,9 @@
 		A10000000000000000000035 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000025 /* ChatViewModel.swift */; };
 		A10000000000000000000036 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000026 /* ContentView.swift */; };
 		A10000000000000000000037 /* MessageBubbleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000027 /* MessageBubbleView.swift */; };
+		A1000000000000000000003B /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000002C /* AppTheme.swift */; };
+		A1000000000000000000003C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000002D /* SettingsView.swift */; };
+		A1000000000000000000003D /* MarkdownContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000002E /* MarkdownContentView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +33,9 @@
 		A10000000000000000000025 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
 		A10000000000000000000026 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A10000000000000000000027 /* MessageBubbleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBubbleView.swift; sourceTree = "<group>"; };
+		A1000000000000000000002C /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		A1000000000000000000002D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A1000000000000000000002E /* MarkdownContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownContentView.swift; sourceTree = "<group>"; };
 		A10000000000000000000028 /* GeminiChatMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GeminiChatMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -103,8 +109,11 @@
 		A10000000000000000000008 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				A1000000000000000000002C /* AppTheme.swift */,
 				A10000000000000000000026 /* ContentView.swift */,
+				A1000000000000000000002E /* MarkdownContentView.swift */,
 				A10000000000000000000027 /* MessageBubbleView.swift */,
+				A1000000000000000000002D /* SettingsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -185,8 +194,11 @@
 				A1000000000000000000003A /* ChatHistoryStore.swift in Sources */,
 				A10000000000000000000034 /* KeychainStore.swift in Sources */,
 				A10000000000000000000035 /* ChatViewModel.swift in Sources */,
+				A1000000000000000000003B /* AppTheme.swift in Sources */,
 				A10000000000000000000036 /* ContentView.swift in Sources */,
+				A1000000000000000000003D /* MarkdownContentView.swift in Sources */,
 				A10000000000000000000037 /* MessageBubbleView.swift in Sources */,
+				A1000000000000000000003C /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

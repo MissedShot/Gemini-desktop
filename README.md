@@ -1,10 +1,10 @@
 # Gemini desktop for MacOS PoC
 
-## Screeenshot
-<img width="2964" height="2004" alt="image" src="https://github.com/user-attachments/assets/53caee86-2fb0-498b-9113-7b5d4b036a44" />
-
-
 macOS chat app on SwiftUI for Xcode with Gemini API key support.
+
+## Screenshot
+
+![Gemini for Mac redesigned workspace](Assets/gemini-redesign.png)
 
 ## Important Notice
 
@@ -14,14 +14,16 @@ macOS chat app on SwiftUI for Xcode with Gemini API key support.
 
 ## Current Features
 
-- Multi-chat sidebar with search, quick switch, and chat delete
+- Grouped multi-chat sidebar with search, quick switch, and chat delete
 - Streaming assistant output (SSE) with automatic fallback to non-streaming request
 - Model picker with API-based model discovery (`ListModels`)
 - Connection status states: not configured / not checked / checking / connected / failed
-- System prompt in settings (with automatic retry without system prompt for unsupported models)
+- Native macOS Settings window for connection, behavior, and safety
+- System prompt support with automatic retry for unsupported models
 - Safety presets: `default`, `strict`, `balanced`, `relaxed`, `off`
 - Stop generation while streaming
-- Message copy action and basic markdown cleanup in assistant bubbles
+- Rich assistant Markdown for headings, lists, quotes, links, and code blocks
+- Message copy actions and hover metadata
 - Local chat history persistence between app launches
 
 ## Data Storage
@@ -45,11 +47,11 @@ macOS chat app on SwiftUI for Xcode with Gemini API key support.
 
 ## Usage
 
-1. Open **Settings** and paste your Gemini API key.
+1. Open **Settings** (`Cmd+,`) and paste your Gemini API key.
 2. Click **Check Connection** to load available models.
 3. Optionally configure **System Prompt** and **Safety level**.
 4. Start a new chat or continue from sidebar history.
-5. Press `Return` to send (`Cmd+Return` inserts a new line).
+5. Press `Cmd+Return` to send. `Return` inserts a new line, and `Escape` stops generation.
 
 ## Gemini API Endpoints Used
 

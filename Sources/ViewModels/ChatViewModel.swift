@@ -230,7 +230,7 @@ final class ChatViewModel: ObservableObject {
 
     func persistHistory() {
         historySaveTask?.cancel()
-        syncCurrentThread(updateTimestamp: true, updatePublishedHistory: true)
+        syncCurrentThread(updateTimestamp: false, updatePublishedHistory: true)
         persistHistoryNow()
     }
 

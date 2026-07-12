@@ -3,8 +3,10 @@ import AppKit
 
 struct MessageBubbleView: View {
     let message: ChatMessage
-    @State private var didCopy: Bool = false
-    @State private var isCopyHovered: Bool = false
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var didCopy = false
+    @State private var isHovered = false
     @State private var copyResetTask: Task<Void, Never>?
 
     private var isAssistant: Bool {
@@ -12,92 +14,15 @@ struct MessageBubbleView: View {
     }
 
     var body: some View {
-        HStack(alignment: .bottom, spacing: 0) {
-            if !isAssistant {
-                Spacer(minLength: 72)
-            }
-
-            bubbleCard
-
+        Group {
             if isAssistant {
-                Spacer(minLength: 72)
+                assistantMessage
+            } else {
+                userMessage
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 2)
-    }
-
-    private var bubbleCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
-                Label(roleTitle, systemImage: roleIcon)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-
-                if let assistantModelLabel {
-                    Text(assistantModelLabel)
-                        .font(.caption2.monospaced())
-                        .foregroundStyle(.tertiary)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
-                }
-
-                Spacer(minLength: 8)
-
-                HStack(spacing: 8) {
-                    Text(message.createdAt.formatted(date: .omitted, time: .shortened))
-                        .font(.caption2.monospacedDigit())
-                        .foregroundStyle(.secondary)
-
-                    Button {
-                        copyMessageText()
-                    } label: {
-                        Image(systemName: didCopy ? "checkmark" : "doc.on.doc")
-                            .font(.caption.weight(.semibold))
-                            .frame(width: 20, height: 20)
-                            .foregroundStyle(didCopy ? Color.accentColor : Color.secondary)
-                            .animation(.easeOut(duration: 0.16), value: didCopy)
-                    }
-                    .buttonStyle(
-                        MessageCopyButtonStyle(
-                            isHovered: isCopyHovered,
-                            isActive: didCopy
-                        )
-                    )
-                    .help("Copy")
-                    .disabled(copyText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                    .onHover { hovering in
-                        withAnimation(.easeOut(duration: 0.14)) {
-                            isCopyHovered = hovering
-                        }
-                    }
-                }
-            }
-
-            if isAssistant && message.text.isEmpty {
-                TypingIndicatorView()
-            } else if isAssistant {
-                Text(cleanedAssistantText(message.text))
-                    .textSelection(.enabled)
-                    .lineSpacing(3)
-            } else {
-                Text(message.text)
-                    .textSelection(.enabled)
-                    .lineSpacing(2)
-            }
-        }
-        .frame(maxWidth: 760, alignment: .leading)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(isAssistant ? Color(nsColor: .textBackgroundColor) : Color.accentColor.opacity(0.14))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(isAssistant ? Color.secondary.opacity(0.14) : Color.accentColor.opacity(0.32), lineWidth: 1)
-        )
-        .shadow(color: .black.opacity(isAssistant ? 0.04 : 0.08), radius: 6, x: 0, y: 2)
+        .onHover { isHovered = $0 }
         .contextMenu {
             Button("Copy", systemImage: "doc.on.doc") {
                 copyMessageText()
@@ -109,25 +34,124 @@ struct MessageBubbleView: View {
         }
     }
 
-    private var roleTitle: String {
-        isAssistant ? "Gemini" : "You"
+    private var assistantMessage: some View {
+        HStack(alignment: .top, spacing: 12) {
+            assistantMark
+
+            VStack(alignment: .leading, spacing: 9) {
+                HStack(spacing: 7) {
+                    Text("Gemini")
+                        .font(.callout.weight(.semibold))
+
+                    if let assistantModelLabel {
+                        Text("·")
+                            .foregroundStyle(.tertiary)
+
+                        Text(assistantModelLabel)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+
+                    Spacer(minLength: 8)
+
+                    messageActions(copyLabel: "Copy response")
+                }
+
+                if message.text.isEmpty {
+                    TypingIndicatorView(reduceMotion: reduceMotion)
+                } else {
+                    MarkdownContentView(markdown: message.text)
+                        .tint(AppTheme.accentBlue)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .accessibilityElement(children: .contain)
     }
 
-    private var roleIcon: String {
-        isAssistant ? "sparkles" : "person"
+    private var userMessage: some View {
+        HStack(alignment: .top, spacing: 0) {
+            Spacer(minLength: 72)
+
+            VStack(alignment: .trailing, spacing: 6) {
+                Text(message.text)
+                    .font(.body)
+                    .lineSpacing(3)
+                    .textSelection(.enabled)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .frame(maxWidth: 580, alignment: .leading)
+                    .background(AppTheme.accentBlue.opacity(0.11), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .stroke(AppTheme.accentBlue.opacity(0.16), lineWidth: 1)
+                    }
+
+                HStack(spacing: 7) {
+                    Text("You")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.secondary)
+
+                    Text("·")
+                        .foregroundStyle(.tertiary)
+
+                    messageActions(copyLabel: "Copy message")
+                }
+            }
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    private var assistantMark: some View {
+        Image(systemName: "sparkles")
+            .font(.system(size: 11, weight: .semibold))
+            .foregroundStyle(.white)
+            .frame(width: 28, height: 28)
+            .background(AppTheme.accentGradient, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+            .accessibilityHidden(true)
+    }
+
+    private func messageActions(copyLabel: String) -> some View {
+        HStack(spacing: 5) {
+            Text(message.createdAt.formatted(date: .omitted, time: .shortened))
+                .font(.caption2.monospacedDigit())
+                .foregroundStyle(.tertiary)
+
+            Button {
+                copyMessageText()
+            } label: {
+                Image(systemName: didCopy ? "checkmark" : "doc.on.doc")
+                    .font(.caption.weight(.semibold))
+                    .frame(width: 28, height: 28)
+                    .contentShape(Circle())
+            }
+            .buttonStyle(MessageActionButtonStyle(isActive: didCopy))
+            .help(didCopy ? "Copied" : copyLabel)
+            .accessibilityLabel(didCopy ? "Copied" : copyLabel)
+            .disabled(copyText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        }
+        .opacity(isHovered || didCopy ? 1 : 0.48)
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.12), value: isHovered)
     }
 
     private var assistantModelLabel: String? {
         guard isAssistant else { return nil }
-        let trimmed = message.modelName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return trimmed.isEmpty ? nil : trimmed
+        let raw = message.modelName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !raw.isEmpty else { return nil }
+
+        return raw
+            .replacingOccurrences(of: "models/", with: "")
+            .replacingOccurrences(of: "gemini-", with: "")
+            .split(separator: "-")
+            .map { part in
+                part.first?.isNumber == true ? String(part) : part.capitalized
+            }
+            .joined(separator: " ")
     }
 
     private var copyText: String {
-        if isAssistant {
-            return cleanedAssistantText(message.text)
-        }
-        return message.text
+        message.text
     }
 
     private func copyMessageText() {
@@ -141,127 +165,65 @@ struct MessageBubbleView: View {
         didCopy = true
 
         copyResetTask = Task {
-            try? await Task.sleep(nanoseconds: 1_000_000_000)
+            try? await Task.sleep(nanoseconds: 1_200_000_000)
             guard !Task.isCancelled else { return }
             await MainActor.run {
                 didCopy = false
             }
         }
     }
+}
 
-    private func cleanedAssistantText(_ text: String) -> String {
-        let normalized = text.replacingOccurrences(of: "\r\n", with: "\n")
+private struct MessageActionButtonStyle: ButtonStyle {
+    let isActive: Bool
 
-        let lines = normalized.components(separatedBy: "\n").map { rawLine -> String in
-            var line = rawLine
-
-            line = line.replacingOccurrences(
-                of: #"^\s{0,3}#{1,6}\s*"#,
-                with: "",
-                options: .regularExpression
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(isActive ? AppTheme.accentBlue : Color.secondary)
+            .background(
+                isActive ? AppTheme.accentBlue.opacity(0.12) : Color.secondary.opacity(configuration.isPressed ? 0.14 : 0.06),
+                in: Circle()
             )
-
-            line = line.replacingOccurrences(
-                of: #"^\s*[*+-]\s+"#,
-                with: "• ",
-                options: .regularExpression
-            )
-
-            line = stripInlineMarkdown(from: line)
-
-            return line
-        }
-
-        return lines.joined(separator: "\n")
-    }
-
-    private func stripInlineMarkdown(from line: String) -> String {
-        var result = line
-
-        result = result.replacingOccurrences(
-            of: #"\*\*(.+?)\*\*"#,
-            with: "$1",
-            options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: #"__(.+?)__"#,
-            with: "$1",
-            options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: #"\*(.+?)\*"#,
-            with: "$1",
-            options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: #"_(.+?)_"#,
-            with: "$1",
-            options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: #"`([^`]+)`"#,
-            with: "$1",
-            options: .regularExpression
-        )
-
-        return result
-    }
-
-    private struct MessageCopyButtonStyle: ButtonStyle {
-        let isHovered: Bool
-        let isActive: Bool
-
-        func makeBody(configuration: Configuration) -> some View {
-            configuration.label
-                .background(
-                    Circle()
-                        .fill(backgroundColor)
-                )
-                .overlay(
-                    Circle()
-                        .strokeBorder(Color.secondary.opacity(isHovered ? 0.34 : 0.18), lineWidth: 1)
-                )
-                .scaleEffect(configuration.isPressed ? 0.9 : (isHovered ? 1.06 : (isActive ? 1.03 : 1.0)))
-                .animation(.spring(response: 0.2, dampingFraction: 0.72), value: configuration.isPressed)
-                .animation(.easeOut(duration: 0.14), value: isHovered)
-                .animation(.easeOut(duration: 0.14), value: isActive)
-        }
-
-        private var backgroundColor: Color {
-            if isActive {
-                return Color.accentColor.opacity(0.14)
-            }
-            if isHovered {
-                return Color.secondary.opacity(0.12)
-            }
-            return Color.clear
-        }
+            .scaleEffect(configuration.isPressed ? 0.92 : 1)
     }
 }
 
 private struct TypingIndicatorView: View {
+    let reduceMotion: Bool
     @State private var animate = false
 
     var body: some View {
-        HStack(spacing: 6) {
-            ForEach(0..<3, id: \.self) { index in
-                Circle()
-                    .fill(Color.secondary.opacity(0.9))
-                    .frame(width: 7, height: 7)
-                    .scaleEffect(animate ? 0.65 : 1.0)
-                    .opacity(animate ? 0.35 : 0.9)
-                    .animation(
-                        .easeInOut(duration: 0.6)
-                            .repeatForever(autoreverses: true)
-                            .delay(Double(index) * 0.14),
-                        value: animate
-                    )
+        HStack(spacing: 8) {
+            if reduceMotion {
+                ProgressView()
+                    .controlSize(.small)
+            } else {
+                HStack(spacing: 5) {
+                    ForEach(0..<3, id: \.self) { index in
+                        Circle()
+                            .fill(AppTheme.accentBlue.opacity(0.8))
+                            .frame(width: 6, height: 6)
+                            .offset(y: animate ? -2 : 2)
+                            .opacity(animate ? 0.45 : 1)
+                            .animation(
+                                .easeInOut(duration: 0.55)
+                                    .repeatForever(autoreverses: true)
+                                    .delay(Double(index) * 0.12),
+                                value: animate
+                            )
+                    }
+                }
+                .onAppear {
+                    animate = true
+                }
             }
+
+            Text("Thinking…")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
-        .padding(.vertical, 2)
-        .onAppear {
-            animate = true
-        }
-        .accessibilityLabel("Typing")
+        .padding(.vertical, 3)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Gemini is responding")
     }
 }
